@@ -1,15 +1,32 @@
-import { Flex, Grid, Heading, Image, Text, VStack } from "@chakra-ui/react";
+import { Button, Flex, Grid, Heading, Image, Text, VStack } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import LogoSecondary from "../../assets/logo-primary.svg";
 import { Input } from "../../components/Form/Input";
 import { FaEnvelope, FaLock } from "react-icons/fa";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const loginSchema = yup.object().shape({
+  email: yup.string().required("E-mail obrigatório").email("E-mail inválido"),
+  password: yup.string().required("Senha obrigatória"),
+});
+
+interface iLoginData {
+  email: string;
+  password: string;
+}
 
 export const Login = () => {
   const {
     formState: { errors },
     register,
     handleSubmit,
-  } = useForm();
+  } = useForm<iLoginData>({
+    mode: "onBlur",
+    resolver: yupResolver(loginSchema),
+  });
+
+  const handleSignIn = (data:iLoginData) => console.log(data);
 
   return (
     <Flex
@@ -34,6 +51,7 @@ export const Login = () => {
           </Text>
         </Grid>
         <Grid
+        onSubmit={handleSubmit(handleSignIn)}
           as="form"
           mt="4"
           w="50%"
@@ -48,14 +66,20 @@ export const Login = () => {
             <Input
               placeholder="Digite seu login"
               icon={FaEnvelope}
-              name="email"
+              label="Login"
+              type="email"
+              error={errors.email}
+              {...register("email")}
             />
             <Input
               placeholder="Digite sua senha"
               icon={FaLock}
+              error={errors.password}
+              type="password"
               {...register("password")}
             />
           </VStack>
+          <Button type="submit">Entrar</Button>
         </Grid>
       </Flex>
     </Flex>
